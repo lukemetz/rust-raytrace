@@ -1,5 +1,5 @@
 //TODO don't re export here?
-pub use geometry::Vec3;
+pub use geometry::{Vec3, Point};
 mod geometry;
 
 #[deriving(Eq, Clone, Show)]
@@ -209,27 +209,48 @@ fn test_Mat4_mul() {
 }
 
 pub trait ApplyVec3 {
-  fn apply_vec3(&self, other : &Vec3) -> Vec3;
+  fn apply_Vec3(&self, other : &Vec3) -> Vec3;
+}
+pub trait ApplyPoint {
+  fn apply_Point(&self, other : &Point) -> Point;
 }
 
 impl ApplyVec3 for Mat4 {
-  fn apply_vec3(&self, other : &Vec3) -> Vec3{
+  fn apply_Vec3(&self, other : &Vec3) -> Vec3{
     let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
     let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
     let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
     Vec3::new(x, y, z)
   }
 }
-
 #[test]
-fn test_Mat4_apply_vec3() {
+fn test_Mat4_apply_Vec3() {
   let m = Mat4::raw(1.,  2.,  3.,  4.,
                      5.,  6.,  7.,  8.,
                      9.,  10., 11., 12.,
                      13., 14., 15., 16.);
   let v = Vec3::new(1., 2., 3.);
   let res = Vec3::new(18., 46., 74.);
-  assert_eq!(m.apply_vec3(&v), res);
+  assert_eq!(m.apply_Vec3(&v), res);
+}
+
+impl ApplyPoint for Mat4 {
+  fn apply_Point(&self, other : &Point) -> Point{
+    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
+    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
+    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
+    Point::new(x, y, z)
+  }
+}
+#[test]
+fn test_Mat4_apply_Point() {
+  let m = Mat4::raw(1.,  2.,  3.,  4.,
+                     5.,  6.,  7.,  8.,
+                     9.,  10., 11., 12.,
+                     13., 14., 15., 16.);
+  let v = Point::new(1., 2., 3.);
+  let res = Point::new(18., 46., 74.);
+  assert_eq!(m.apply_Point(&v), res);
 }
 
 
@@ -238,21 +259,16 @@ pub struct Transform {
   mat : Mat4
 }
 
-/*
 impl Transform {
-  fn apply_Mat4(&self, matrix : &geometry::Mat4<f32>) -> geometry::Mat4<f32> {
-    //TODO check order
-    self.mat.mul(matrix)
+  pub fn apply_Mat4(&self, matrix : Mat4) -> Mat4 {
+    self.mat * matrix
   }
 
-  /*
-  fn apply_Vec3(&self, vec : &geometry::Vec3<f32>) -> geometry::Vec3<f32> {
-    self.mat.mul_v(vec)
+  fn apply_Vec3(&self, vec : &Vec3) -> Vec3 {
+    self.mat.apply_Vec3(vec)
   }
-  */
-  
-  /*
-  fn apply_Point3(&self, point : geometry::Point3<f32>) -> geometry::Point3<f32> {
-    self.mat * point
-  }*/
-}*/
+
+  fn apply_Point(&self, point : &Point) -> Point {
+    self.mat.apply_Point(point)
+  }
+}
