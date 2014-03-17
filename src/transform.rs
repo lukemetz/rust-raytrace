@@ -30,13 +30,14 @@ impl Mat4 {
                    i, j, k, l,
                    m, n, o, p]}
   }
-  //TODO return Option
+  //TODO make this more functional
   //Implementation ported from pbrt
-  fn inverse(&self) -> Mat4 {
+  fn inverse(&self) -> Option<Mat4> {
     let mut indxc = [0, ..4];
     let mut indxr = [0, ..4];
     let mut ipiv = [0, ..4];
     let mut minv = self.data.to_owned();
+    let mut fail = false;
     for i in range(0, 4) {
       let mut irow = -1;
       let mut icol = -1;
@@ -53,11 +54,13 @@ impl Mat4 {
               }
             }
             else if ipiv[k] > 1 {
-              fail!("singular matrix in matrixinvert");
+              fail = true;
             }
           }
+          if fail { break; }
         }
       }
+      if fail { break; }
       ipiv[icol] += 1;
       // swap rows _irow_ and _icol_ for pivot
       if irow != icol {
@@ -70,7 +73,8 @@ impl Mat4 {
       indxr[i] = irow;
       indxc[i] = icol;
       if minv[icol*4 + icol] == 0. {
-        fail!("singular matrix in matrixinvert");
+        fail = true;
+        break
       }
       // set $m[icol][icol]$ to one by scaling row _icol_ appropriately
       let pivinv = 1.0f32 / minv[icol*4 + icol];
@@ -90,7 +94,6 @@ impl Mat4 {
       }
     }
     // swap columns to reflect permutation
-    //for (int j = 3; j >= 0; j--) {
     for jj in range(0, 4) {
       let j = 3-jj;
       if indxr[j] != indxc[j] {
@@ -101,7 +104,11 @@ impl Mat4 {
         }
       }
     }
-    Mat4{data:minv}
+    if fail {
+      None
+    } else {
+      Some(Mat4{data:minv})
+    }
   }
 }
 
@@ -133,7 +140,7 @@ fn test_Mat4_inverse() {
                             0f32, 0.5f32, 0f32, 0f32,
                             0f32, 0f32, 0.5f32, 0f32,
                             0f32, 0f32, 0f32, 0.5f32]};
-  assert_eq!(iden.inverse(), inv);
+  assert_eq!(iden.inverse().unwrap(), inv);
 
   let iden2 = Mat4 {data : ~[1f32, 0f32, 0f32, 4f32,
                             0f32, 1f32, 0f32, 2f32,
@@ -143,7 +150,13 @@ fn test_Mat4_inverse() {
                             0f32, 1f32, 0f32, -2f32,
                             0f32, 0f32, 1f32, 0f32,
                             0f32, 0f32, 0f32, 1f32]};
-  assert_eq!(iden2.inverse(), inv2);
+  assert_eq!(iden2.inverse().unwrap(), inv2);
+  let failInv = Mat4 {data : ~[1f32, 1f32, 1f32, 1f32,
+                                1f32, 1f32, 1f32, 1f32,
+                                1f32, 1f32, 1f32, 1f32,
+                                1f32, 1f32, 1f32, 1f32]};
+  assert_eq!(failInv.inverse(), None);
+                                
 }
 
 impl Add<Mat4, Mat4> for Mat4 {
