@@ -1,12 +1,10 @@
-extern crate cgmath;
-
 use shape::{Intersect, Shape};
-use geometry::{Point3, Normal, Vec3};
+use geometry::{Point, Normal, Vec3};
 
-mod shape;
-mod geometry;
+pub mod shape;
+pub mod geometry;
 
-mod transform;
+pub mod transform;
 
 fn make_pixels() -> ~[int] {
   let mut pixels = ~[0, ..(300*300*3)];
@@ -44,11 +42,10 @@ fn write_pixels(pixels : &[int]) {
 }
 
 fn main() {
-  let trans = transform::Transform { mat : geometry::Mat4::identity() };
-  let sphere = ~shape::Sphere{ trans : trans, r : 1.0} as ~Shape;
+  let trans = transform::Transform { mat : transform::Mat4::identity() };
+  let sphere = ~shape::Sphere{ trans : trans, radius : 1.0} as ~Shape;
 
-  let ray = ~geometry::Ray { o:Point3::new(10.0f32, 0f32, 0f32), d:Vec3::new(-1f32, 0f32, 0f32)};
-  let j = sphere.inter();
+  let ray = ~geometry::Ray { o:Point::new(10.0f32, 0f32, 0f32), d:Vec3::new(-1f32, 0f32, 0f32)};
   let k = sphere.intersect(ray);
 
   println!("{:?}", k);
@@ -59,6 +56,6 @@ fn main() {
   /*println!("Starting writing");
   write_pixels(pixels);*/
 
-  let point = geometry::Point3::new(1,2,3);
+  let point = geometry::Point::new(1.,2.,3.);
   println!("{}", point);
 }

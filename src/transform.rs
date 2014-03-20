@@ -1,6 +1,6 @@
 //TODO don't re export here?
-pub use geometry::{Vec3, Point};
-mod geometry;
+use geometry::{Vec3, Point, Ray, Normal};
+pub mod geometry;
 
 #[deriving(Eq, Clone, Show)]
 pub struct Mat4 {
@@ -8,7 +8,7 @@ pub struct Mat4 {
 }
 
 impl Mat4 {
-  fn diag(d : f32) -> Mat4 {
+  pub fn diag(d : f32) -> Mat4 {
     let mut data = ~[0.0f32, ..16];
     data[0] = d;
     data[5] = d;
@@ -17,11 +17,11 @@ impl Mat4 {
     Mat4 { data: data }
   }
 
-  fn identity() -> Mat4 {
+  pub fn identity() -> Mat4 {
     Mat4::diag(1.0f32)
   }
 
-  fn raw(a : f32, b : f32, c : f32, d : f32,
+  pub fn raw(a : f32, b : f32, c : f32, d : f32,
          e : f32, f : f32, g : f32, h : f32,
          i : f32, j : f32, k : f32, l : f32,
          m : f32, n : f32, o : f32, p : f32) -> Mat4 {
@@ -30,6 +30,33 @@ impl Mat4 {
                    i, j, k, l,
                    m, n, o, p]}
   }
+  
+  fn apply_Point(&self, other : &Point) -> Point{
+    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
+    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
+    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
+    Point::new(x, y, z)
+  }
+  
+  fn apply_Vec3(&self, other : &Vec3) -> Vec3{
+    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z;
+    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z;
+    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10]* other.z;
+    Vec3::new(x, y, z)
+  }
+  
+  fn apply_Normal(&self, other : &Normal) -> Normal{
+    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z;
+    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z;
+    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10]* other.z;
+    Normal::new(x, y, z)
+  }
+
+  fn apply_Ray(&self, other : &Ray) -> Ray{
+    Ray{o:self.apply_Point(&other.o),
+        d:self.apply_Vec3(&other.d)}
+  }
+
   //TODO make this more functional
   //Implementation ported from pbrt
   fn inverse(&self) -> Option<Mat4> {
@@ -208,21 +235,6 @@ fn test_Mat4_mul() {
   assert_eq!(m1 * m1, res);
 }
 
-pub trait ApplyVec3 {
-  fn apply_Vec3(&self, other : &Vec3) -> Vec3;
-}
-pub trait ApplyPoint {
-  fn apply_Point(&self, other : &Point) -> Point;
-}
-
-impl ApplyVec3 for Mat4 {
-  fn apply_Vec3(&self, other : &Vec3) -> Vec3{
-    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
-    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
-    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
-    Vec3::new(x, y, z)
-  }
-}
 #[test]
 fn test_Mat4_apply_Vec3() {
   let m = Mat4::raw(1.,  2.,  3.,  4.,
@@ -230,18 +242,10 @@ fn test_Mat4_apply_Vec3() {
                      9.,  10., 11., 12.,
                      13., 14., 15., 16.);
   let v = Vec3::new(1., 2., 3.);
-  let res = Vec3::new(18., 46., 74.);
+  let res = Vec3::new(14., 38., 62.);
   assert_eq!(m.apply_Vec3(&v), res);
 }
 
-impl ApplyPoint for Mat4 {
-  fn apply_Point(&self, other : &Point) -> Point{
-    let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
-    let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
-    let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
-    Point::new(x, y, z)
-  }
-}
 #[test]
 fn test_Mat4_apply_Point() {
   let m = Mat4::raw(1.,  2.,  3.,  4.,
@@ -260,15 +264,39 @@ pub struct Transform {
 }
 
 impl Transform {
+  pub fn translate(d : Vec3) -> Transform{
+    Transform{ mat : Mat4::raw(1., 0., 0., d.x,
+                               0., 1., 0., d.y,
+                               0., 0., 1., d.z,
+                               0., 0., 0., 1.)
+    }
+  }
+
   pub fn apply_Mat4(&self, matrix : Mat4) -> Mat4 {
     self.mat * matrix
   }
 
-  fn apply_Vec3(&self, vec : &Vec3) -> Vec3 {
+  pub fn apply_Vec3(&self, vec : &Vec3) -> Vec3 {
     self.mat.apply_Vec3(vec)
   }
 
-  fn apply_Point(&self, point : &Point) -> Point {
+  pub fn apply_Point(&self, point : &Point) -> Point {
     self.mat.apply_Point(point)
+  }
+  
+  pub fn apply_Normal(&self, point : &Normal) -> Normal{
+    self.mat.apply_Normal(point)
+  }
+
+  pub fn apply_Ray(&self, ray : &Ray) -> Ray {
+    self.mat.apply_Ray(ray)
+  }
+  
+  pub fn apply_inv_Ray(&self, ray : &Ray) -> Ray {
+    self.mat.inverse().unwrap().apply_Ray(ray)
+  }
+
+  pub fn identity() -> Transform{
+    Transform{mat:Mat4::identity()}
   }
 }
