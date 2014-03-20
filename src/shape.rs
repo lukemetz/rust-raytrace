@@ -1,7 +1,6 @@
 use geometry::{Point, Normal, Vec3, Ray, Scale};
 use transform::{Transform, Mat4};
 use std::fmt;
-use std::cmp::min;
 pub mod transform;
 pub mod geometry;
 
@@ -77,7 +76,7 @@ impl Intersect for Sphere {
         let mut thit = t0;
         if t0 > 0. {
           if t1 > 0. {
-            thit = min(t0, t1);
+            thit = t0.min(t1);
           }
         } else {
           thit = t1;
