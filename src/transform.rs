@@ -296,7 +296,10 @@ impl Transform {
     self.mat.inverse().unwrap().apply_Ray(ray)
   }
 
-  pub fn identity() -> Transform{
-    Transform{mat:Mat4::identity()}
+  pub fn scale(amt : f32) -> Transform {
+    Transform {mat : Mat4::diag(amt)}
+  }
+  pub fn identity() -> Transform {
+    Transform {mat : Mat4::identity()}
   }
 }
