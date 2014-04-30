@@ -1,40 +1,41 @@
-use camera::CameraSample;
+use sample::Sample;
 use std::io::{File, Open, Write};
+use spectrum::Spectrum;
 
-pub mod camera;
+pub mod sample;
 pub mod geometry;
-//Why is this needed?
+pub mod spectrum;
 pub mod transform;
 
 pub struct Film {
-  size : (uint, uint),
-  data : ~Vec<(f32, f32, f32)>
+  pub size : (uint, uint),
+  pub data : Vec<(f32, f32, f32)>
 }
 
 impl Film {
   pub fn new(size : (uint, uint)) -> Film {
     match size {
       (x, y) => {
-        let data = ~Vec::with_capacity(x * y);
+        let data = Vec::from_elem(x * y, (0f32, 0f32, 0f32));
         Film {size : size, data : data}
       }
     }
   }
 
   //TODO speed up with lifetimes
-  pub fn get(&self, x : uint, y : uint) -> (f32, f32, f32) {
+  pub fn get<'a>(&'a self, x : uint, y : uint) -> &'a (f32, f32, f32) {
     let (sx, _) = self.size;
-    *self.data.get(y * sx + x)
+    self.data.get(y * sx + x)
   }
 
-  pub fn add_sample(&mut self, sample : &CameraSample, color : (f32, f32, f32)) {
+  pub fn add_sample(&mut self, sample : &Sample, spectrum: Spectrum) {
     match self.size {
       (x, y) => {
         let nearest_x = ((x as f32) * sample.point.x) as uint;
         let nearest_y = ((y as f32) * sample.point.y) as uint;
         let index = nearest_y * x + nearest_x;
         //TODO fix me to not grow
-        self.data.grow_set(index, &(0.,0.,0.), color)
+        *self.data.get_mut(index) = spectrum.rgb;
       }
     }
   }
@@ -52,7 +53,7 @@ impl Film {
 
     for x in range(0, xs) {
       for y in range(0, ys) {
-        let (r, g, b) = self.get(x, y);
+        let &(r, g, b) = self.get(x, y);
         let (ir, ig, ib) = ((r*255.) as int, (g*255.) as int, (b*255.) as int);
         println!("{}, {}, {}", ir, ig, ib);
         if file.write_str(format!("{:d} {:d} {:d} ", ir, ig, ib)).is_err() {
@@ -69,8 +70,9 @@ fn test_Film_write() {
   let mut film = ~Film::new((100, 100));
   for x in range(0, 100) {
     for y in range(0, 100) {
-      let sample = CameraSample::new((x as f32 + 0.5) / 100., (y as f32 + 0.5) / 100.);
-      film.add_sample(&sample, (x as f32 / 100., y as f32 / 100., 0.5));
+      let sample = Sample::new((x as f32 + 0.5) / 100., (y as f32 + 0.5) / 100.);
+      let spectrum = Spectrum::new((x as f32 / 100., y as f32 / 100., 0.5));
+      film.add_sample(&sample, spectrum);
     }
   }
   let path = Path::new("unitTestppmWithUniqueName123.ppm");

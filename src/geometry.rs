@@ -1,8 +1,8 @@
 #[deriving(Eq, Clone, Show)]
 pub struct Point {
-  x : f32,
-  y : f32,
-  z : f32
+  pub x : f32,
+  pub y : f32,
+  pub z : f32
 }
 impl Point{
   pub fn new(x : f32, y : f32, z : f32) -> Point {
@@ -26,9 +26,9 @@ impl Sub<Point, Point> for Point {
 
 #[deriving(Eq, Clone, Show)]
 pub struct Vec3 {
-  x : f32,
-  y : f32,
-  z : f32
+  pub x : f32,
+  pub y : f32,
+  pub z : f32
 }
 impl Vec3 {
   pub fn new(x : f32, y : f32, z : f32) -> Vec3 {
@@ -72,9 +72,9 @@ fn test_vec3_scale() {
 
 #[deriving(Eq, Clone, Show)]
 pub struct Normal {
-  x : f32,
-  y : f32,
-  z : f32
+  pub x : f32,
+  pub y : f32,
+  pub z : f32
 }
 
 impl Normal {
@@ -89,8 +89,8 @@ impl Normal {
 
 #[deriving(Eq, Clone, Show)]
 pub struct Ray {
-  o : Point,
-  d : Vec3
+  pub o : Point,
+  pub d : Vec3
 }
 
 impl Ray {

@@ -4,7 +4,7 @@ pub mod geometry;
 
 #[deriving(Eq, Clone, Show)]
 pub struct Mat4 {
-  data : ~[f32]
+  pub data : ~[f32]
 }
 
 impl Mat4 {
@@ -60,19 +60,19 @@ impl Mat4 {
   //TODO make this more functional
   //Implementation ported from pbrt
   fn inverse(&self) -> Option<Mat4> {
-    let mut indxc = [0, ..4];
-    let mut indxr = [0, ..4];
-    let mut ipiv = [0, ..4];
+    let mut indxc = [0u, ..4];
+    let mut indxr = [0u, ..4];
+    let mut ipiv = [0u, ..4];
     let mut minv = self.data.to_owned();
     let mut fail = false;
-    for i in range(0, 4) {
+    for i in range(0u, 4u) {
       let mut irow = -1;
       let mut icol = -1;
       let mut big = 0.;
       // choose pivot
-      for j in range(0, 4) {
+      for j in range(0u, 4u) {
         if ipiv[j] != 1 {
-          for k in range(0, 4) {
+          for k in range(0u, 4u) {
             if ipiv[k] == 0 {
               if minv[j*4 + k].abs() >= big {
                 big = minv[j*4 + k].abs();
@@ -91,7 +91,7 @@ impl Mat4 {
       ipiv[icol] += 1;
       // swap rows _irow_ and _icol_ for pivot
       if irow != icol {
-        for k in range(0, 4) {
+        for k in range(0u, 4u) {
           let tmp = minv[irow*4 + k];
           minv[irow*4 + k] = minv[icol*4 + k];
           minv[icol*4 + k] = tmp;
@@ -106,25 +106,25 @@ impl Mat4 {
       // set $m[icol][icol]$ to one by scaling row _icol_ appropriately
       let pivinv = 1.0f32 / minv[icol*4 + icol];
       minv[icol*4 + icol] = 1.;
-      for j in range(0, 4) {
+      for j in range(0u, 4u) {
         minv[icol*4 + j] *= pivinv;
       }
       // subtract this row from others to zero out their columns
-      for j in range(0, 4) {
+      for j in range(0u, 4u) {
         if j != icol {
           let save = minv[j*4 + icol];
           minv[j*4 + icol] = 0.0;
-          for k in range(0, 4) {
+          for k in range(0u, 4u) {
             minv[j*4 + k] -= minv[icol*4 + k]*save;
           }
         }
       }
     }
     // swap columns to reflect permutation
-    for jj in range(0, 4) {
+    for jj in range(0u, 4u) {
       let j = 3-jj;
       if indxr[j] != indxc[j] {
-        for k in range(0, 4) {
+        for k in range(0u, 4u) {
           let tmp = minv[k*4 + indxr[j]];
           minv[k*4 + indxr[j]] = minv[k*4 + indxc[j]];
           minv[k*4 + indxc[j]] = tmp;
@@ -189,7 +189,7 @@ fn test_Mat4_inverse() {
 impl Add<Mat4, Mat4> for Mat4 {
   fn add(&self, other : &Mat4) -> Mat4 {
     let mut sum_data = ~[0.0f32, ..16];
-    for i in range(0, 16) {
+    for i in range(0u, 16u) {
       sum_data[i] = other.data[i] + self.data[i];
     }
     Mat4 { data : sum_data }
@@ -211,8 +211,8 @@ fn test_Mat4_add() {
 impl Mul<Mat4, Mat4> for Mat4 {
   fn mul(&self, other : &Mat4) -> Mat4 {
     let mut sum_data = ~[0.0f32, ..16];
-    for i in range(0, 4) {
-      for j in range(0, 4) {
+    for i in range(0u, 4u) {
+      for j in range(0u, 4u) {
         sum_data[i*4+j] = self.data[i*4 + 0] * other.data[0 + j] +
                           self.data[i*4 + 1] * other.data[4 + j] +
                           self.data[i*4 + 2] * other.data[8 + j] +

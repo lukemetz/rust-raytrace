@@ -1,25 +1,26 @@
 use geometry::{Point, Normal, Vec3, Ray, Scale};
 use transform::{Transform, Mat4};
 use std::fmt;
+
 pub mod transform;
 pub mod geometry;
 
 //use differential_geometry::DifferentialGeometry;
-#[deriving(Show)]
-pub struct IntersectionResult {
-  diff_geom : DifferentialGeometry,
-  t_hit : f32,
-  rayEpsilon : f32
+#[deriving(Show, Eq)]
+pub struct Intersection {
+  pub t_hit : f32,
+  pub diff_geom : DifferentialGeometry,
+  pub rayEpsilon : f32
 }
 
 pub trait Intersect {
-  fn intersect(&self, ray : &Ray) -> Option<IntersectionResult>;
+  fn intersect(&self, ray : &Ray) -> Option<Intersection>;
 }
 
-#[deriving(Show)]
+#[deriving(Show, Eq)]
 struct DifferentialGeometry {
-  p : Point,
-  n : Normal,
+  pub p : Point,
+  pub n : Normal,
   //u : f32, v : f32,
   //dpdu : Vec3, dpdv : Vec3,
   //dndu : Normal, dndv : Normal,
@@ -42,7 +43,7 @@ pub struct Sphere {
   radius : f32
 }
 impl Sphere {
-  fn new(radius :f32, t : Transform) -> Sphere {
+  pub fn new(radius :f32, t : Transform) -> Sphere {
     Sphere{trans:t, radius:radius}
   }
 }
@@ -62,9 +63,9 @@ fn quadratic(a : f32, b : f32, c : f32) -> Option<(f32, f32)> {
 }
 
 impl Intersect for Sphere {
-  fn intersect(&self, ray: &Ray) -> Option<IntersectionResult> {
+  fn intersect(&self, ray: &Ray) -> Option<Intersection> {
     let tray = self.trans.apply_inv_Ray(ray);
-    
+
     //Quadratic constants
     let a = tray.d.x*tray.d.x + tray.d.y*tray.d.y + tray.d.z*tray.d.z;
     let b = 2. * (tray.d.x*tray.o.x + tray.d.y*tray.o.y + tray.d.z*tray.o.z);
@@ -84,7 +85,6 @@ impl Intersect for Sphere {
         if thit > 0. {
           let point = tray.o + Point::from_vec(tray.d.scale(thit));
           let normal = Normal::from_point(tray.o - point);
-          println!("THit: {}", thit);
           let diff_geom = DifferentialGeometry{
             p: self.trans.apply_Point(&point),
             n: self.trans.apply_Normal(&normal)
@@ -92,7 +92,7 @@ impl Intersect for Sphere {
             //dpdu : Vec3::new(0f32,0f32,0f32), dpdv : Vec3::new(0f32,0f32,0f32),
             //dndu : Normal::new(0f32,0f32,0f32), dndv : Normal::new(0f32,0f32,0f32)
           };
-          let intersect = IntersectionResult{
+          let intersect = Intersection{
             diff_geom : diff_geom,
             t_hit : t1,
             rayEpsilon : 1.0

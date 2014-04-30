@@ -19,10 +19,6 @@ fn main() {
   println!("{:?}", sphere);
   println!("{:?}", ray);
 
-  let pixels : ~[int] = make_pixels();
-  /*println!("Starting writing");
-  write_pixels(pixels);*/
-
   let point = geometry::Point::new(1.,2.,3.);
   println!("{}", point);
 }
