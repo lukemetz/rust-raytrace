@@ -1,10 +1,11 @@
 use sample::Sample;
-use std::io::{File, Open, Write};
 use spectrum::Spectrum;
+use std::io::{File, Open, Write};
+use std::io::fs;
 
+pub mod spectrum;
 pub mod sample;
 pub mod geometry;
-pub mod spectrum;
 pub mod transform;
 
 pub struct Film {
@@ -31,10 +32,9 @@ impl Film {
   pub fn add_sample(&mut self, sample : &Sample, spectrum: Spectrum) {
     match self.size {
       (x, y) => {
-        let nearest_x = ((x as f32) * sample.point.x) as uint;
-        let nearest_y = ((y as f32) * sample.point.y) as uint;
+        let nearest_x = sample.point.x as uint;
+        let nearest_y = sample.point.y as uint;
         let index = nearest_y * x + nearest_x;
-        //TODO fix me to not grow
         *self.data.get_mut(index) = spectrum.rgb;
       }
     }
@@ -55,7 +55,6 @@ impl Film {
       for y in range(0, ys) {
         let &(r, g, b) = self.get(x, y);
         let (ir, ig, ib) = ((r*255.) as int, (g*255.) as int, (b*255.) as int);
-        println!("{}, {}, {}", ir, ig, ib);
         if file.write_str(format!("{:d} {:d} {:d} ", ir, ig, ib)).is_err() {
           println!("Failed to write file");
           return;

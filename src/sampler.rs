@@ -86,7 +86,7 @@ fn test_RandomSampler() {
 
   let first = iter.next().unwrap();
   assert_eq!(first.len(), 3);
-  assert!(first[0].point.x < 1. && first[0].point.y < 1. && first[0].point.z == 0.);
-  assert!(first[0].point.x > 0. && first[0].point.y > 0. && first[0].point.z == 0.);
+  assert!(first.get(0).point.x < 1. && first.get(0).point.y < 1. && first.get(0).point.z == 0.);
+  assert!(first.get(0).point.x > 0. && first.get(0).point.y > 0. && first.get(0).point.z == 0.);
 }
 

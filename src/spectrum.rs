@@ -1,4 +1,4 @@
-
+#[deriving(Eq, Show)]
 pub struct Spectrum {
   pub rgb : (f32, f32, f32)
 }

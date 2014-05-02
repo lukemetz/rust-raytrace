@@ -3,7 +3,7 @@ pub mod geometry;
 
 #[deriving(Eq, Clone, Show)]
 pub struct Sample {
-  pub point : Point //In screen space
+  pub point : Point //In raster space
 }
 
 impl Sample {

@@ -183,7 +183,6 @@ fn test_Mat4_inverse() {
                                 1f32, 1f32, 1f32, 1f32,
                                 1f32, 1f32, 1f32, 1f32]};
   assert_eq!(failInv.inverse(), None);
-                                
 }
 
 impl Add<Mat4, Mat4> for Mat4 {
@@ -283,7 +282,7 @@ impl Transform {
   pub fn apply_Point(&self, point : &Point) -> Point {
     self.mat.apply_Point(point)
   }
-  
+
   pub fn apply_Normal(&self, point : &Normal) -> Normal{
     self.mat.apply_Normal(point)
   }
@@ -291,7 +290,7 @@ impl Transform {
   pub fn apply_Ray(&self, ray : &Ray) -> Ray {
     self.mat.apply_Ray(ray)
   }
-  
+
   pub fn apply_inv_Ray(&self, ray : &Ray) -> Ray {
     self.mat.inverse().unwrap().apply_Ray(ray)
   }
