@@ -28,7 +28,7 @@ impl OrthographicCamera {
     OrthographicCamera {
       raster_to_screen : screen_to_raster.inverse(),
       screen_to_camera : camera_to_screen.inverse(),
-      camera_to_world : camera_to_world,
+      camera_to_world : camera_to_world
     }
   }
 }
@@ -36,8 +36,6 @@ impl OrthographicCamera {
 impl Camera for OrthographicCamera {
   fn generate_ray(&self, sample : &Sample) -> Ray {
     let direction = self.camera_to_world.apply_Vec3(&Vec3::new(0., 0., 1.));
-
-    //TODO should be the right order
     let raster_to_world = self.camera_to_world * self.screen_to_camera * self.raster_to_screen;
     let origin = raster_to_world.apply_Point(&sample.point);
     Ray::new(origin, direction)
@@ -51,12 +49,12 @@ fn test_OrthographicCamera_generate_ray() {
   let film = Film::new((10, 10));
   let camera = ~OrthographicCamera::new(trans, (-10., 10., -10., 10.), &film);
 
-  let sample = Sample::new(7.5, 7.5); //halfway in film
+  let sample = Sample::new(7.5, 7.5);
   let ray = camera.generate_ray(&sample);
   let true_ray = Ray::new(Point::new(5.,5.,-2.), Vec3::new(0.,0.,1.));
   assert_eq!(ray, true_ray)
 
-  let sample = Sample::new(2.5, 2.5); //halfway in film
+  let sample = Sample::new(2.5, 2.5);
   let ray = camera.generate_ray(&sample);
   let true_ray = Ray::new(Point::new(-5.,-5.,-2.), Vec3::new(0.,0.,1.));
   assert_eq!(ray, true_ray)
