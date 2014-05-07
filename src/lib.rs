@@ -10,3 +10,4 @@ pub mod sample;
 pub mod shape;
 pub mod spectrum;
 pub mod scene;
+pub mod filter;
