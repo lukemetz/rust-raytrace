@@ -1,3 +1,4 @@
+extern crate rand;
 use sample::Sample;
 
 pub trait Sampler<T : Iterator<~Vec<Sample>>> {
@@ -65,8 +66,8 @@ impl Iterator<~Vec<Sample>> for RandomSamplerIter {
       None => None,
       Some((on_x, on_y)) => {
         let sample_vec = ~Vec::from_fn(self.max_samples, |_| -> Sample {
-            let delta_x = 0.5;
-            let delta_y = 0.5;
+            let delta_x : f32 = rand::random();
+            let delta_y : f32 = rand::random();
             Sample::new((on_x as f32) + delta_x, (on_y as f32) + delta_y)
         });
         Some(sample_vec)
@@ -85,5 +86,10 @@ fn test_RandomSampler() {
   assert_eq!(first.len(), 3);
   assert!(first.get(0).point.x < 1. && first.get(0).point.y < 1. && first.get(0).point.z == 0.);
   assert!(first.get(0).point.x > 0. && first.get(0).point.y > 0. && first.get(0).point.z == 0.);
+
+  assert!(first.get(1).point.x < 1. && first.get(1).point.y < 1. && first.get(1).point.z == 0.);
+  assert!(first.get(1).point.x > 0. && first.get(1).point.y > 0. && first.get(1).point.z == 0.);
+
+  assert!(first.get(0).point != first.get(1).point);
 }
 
