@@ -1,6 +1,9 @@
 use shape::{Intersect, Intersection};
-use geometry::{Ray, Vec3, Point};
-use transform::{Transform};
+use geometry::Ray;
+#[test]
+use geometry::{Vec3, Point};
+#[test]
+use transform::Transform;
 
 pub struct Scene {
   shapes : Vec<~Intersect>

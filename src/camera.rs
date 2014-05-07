@@ -1,7 +1,10 @@
-use geometry::{Vec3, Ray, Point};
+use geometry::{Vec3, Ray};
 use transform::Transform;
 use sample::Sample;
 use film::Film;
+
+#[test]
+use geometry::{Point};
 
 pub trait Camera {
   fn generate_ray(&self, sample : &Sample) -> Ray;

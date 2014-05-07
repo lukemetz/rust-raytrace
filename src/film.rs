@@ -1,7 +1,9 @@
-use std;
 use sample::Sample;
 use spectrum::Spectrum;
 use std::io::{File, Open, Write};
+
+#[test]
+use std;
 
 pub struct Film {
   pub size : (uint, uint),

@@ -1,6 +1,8 @@
-use geometry::{Point, Normal, Vec3, Ray, Scale};
+use geometry::{Point, Normal, Ray, Scale};
 use transform::{Transform};
 use std::fmt;
+#[test]
+use geometry::{Vec3};
 
 //use differential_geometry::DifferentialGeometry;
 #[deriving(Show, Eq)]
