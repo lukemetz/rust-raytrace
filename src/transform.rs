@@ -1,8 +1,8 @@
-//TODO don't re export here?
 use geometry::{Vec3, Point, Ray, Normal};
-pub mod geometry;
+use std::f32::to_str;
+use std;
 
-#[deriving(Eq, Clone, Show)]
+#[deriving(Eq, Clone)]
 pub struct Mat4 {
   pub data : ~[f32]
 }
@@ -30,21 +30,21 @@ impl Mat4 {
                    i, j, k, l,
                    m, n, o, p]}
   }
-  
+
   fn apply_Point(&self, other : &Point) -> Point{
     let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
     let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
     let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
     Point::new(x, y, z)
   }
-  
+
   fn apply_Vec3(&self, other : &Vec3) -> Vec3{
     let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z;
     let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z;
     let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10]* other.z;
     Vec3::new(x, y, z)
   }
-  
+
   fn apply_Normal(&self, other : &Normal) -> Normal{
     let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z;
     let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z;
@@ -139,6 +139,140 @@ impl Mat4 {
   }
 }
 
+
+impl Add<Mat4, Mat4> for Mat4 {
+  fn add(&self, other : &Mat4) -> Mat4 {
+    let mut sum_data = ~[0.0f32, ..16];
+    for i in range(0u, 16u) {
+      sum_data[i] = other.data[i] + self.data[i];
+    }
+    Mat4 { data : sum_data }
+  }
+}
+
+impl Mul<Mat4, Mat4> for Mat4 {
+  fn mul(&self, other : &Mat4) -> Mat4 {
+    let mut sum_data = ~[0.0f32, ..16];
+    for i in range(0u, 4u) {
+      for j in range(0u, 4u) {
+        sum_data[i*4+j] = self.data[i*4 + 0] * other.data[0 + j] +
+                          self.data[i*4 + 1] * other.data[4 + j] +
+                          self.data[i*4 + 2] * other.data[8 + j] +
+                          self.data[i*4 + 3] * other.data[12 + j];
+      }
+    }
+    Mat4 { data : sum_data }
+  }
+}
+
+
+impl std::fmt::Show for Mat4 {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    let d = &self.data;
+    let mut string = "Mat4 {\n".to_owned();
+    for j in range(0u, 4u) {
+      string = string + "    " +
+      to_str(d[j*4]) + "   " +
+      to_str(d[j*4+1]) + "   " +
+      to_str(d[j*4+2]) + "   " +
+      to_str(d[j*4+3]) + "\n";
+    }
+    string = string + "}";
+    write!(f.buf, "{}", string)
+  }
+}
+
+
+#[deriving(Eq, Clone, Show)]
+pub struct Transform {
+  mat : Mat4
+}
+
+impl Transform {
+  pub fn translate(d : Vec3) -> Transform{
+    Transform{ mat : Mat4::raw(1., 0., 0., d.x,
+                               0., 1., 0., d.y,
+                               0., 0., 1., d.z,
+                               0., 0., 0., 1.)
+    }
+  }
+
+  pub fn apply_Mat4(&self, matrix : Mat4) -> Mat4 {
+    self.mat * matrix
+  }
+
+  pub fn apply_Vec3(&self, vec : &Vec3) -> Vec3 {
+    self.mat.apply_Vec3(vec)
+  }
+
+  pub fn apply_Point(&self, point : &Point) -> Point {
+    self.mat.apply_Point(point)
+  }
+
+  pub fn apply_Normal(&self, point : &Normal) -> Normal{
+    self.mat.apply_Normal(point)
+  }
+
+  pub fn apply_Ray(&self, ray : &Ray) -> Ray {
+    self.mat.apply_Ray(ray)
+  }
+
+  pub fn apply_inv_Ray(&self, ray : &Ray) -> Ray {
+    self.mat.inverse().unwrap().apply_Ray(ray)
+  }
+
+  pub fn scale(xs : f32, ys : f32, zs : f32) -> Transform {
+    Transform{ mat : Mat4::raw(xs, 0., 0., 0.,
+                               0., ys, 0., 0.,
+                               0., 0., zs, 0.,
+                               0., 0., 0., 1.)
+    }
+  }
+  pub fn identity() -> Transform {
+    Transform {mat : Mat4::identity()}
+  }
+
+  //TODO make this safer!
+  pub fn inverse(&self) -> Transform {
+    Transform { mat : self.mat.inverse().unwrap() }
+  }
+
+  pub fn new(mat : Mat4) -> Transform {
+    Transform { mat : mat }
+  }
+}
+
+impl Mul<Transform, Transform> for Transform {
+  fn mul(&self, other: &Transform) -> Transform {
+    //FIXME is clone correct here?
+    let new_mat = self.apply_Mat4(other.mat.clone());
+    Transform::new(new_mat)
+  }
+}
+
+
+#[test]
+fn test_Mat4_apply_Vec3() {
+  let m = Mat4::raw(1.,  2.,  3.,  4.,
+                     5.,  6.,  7.,  8.,
+                     9.,  10., 11., 12.,
+                     13., 14., 15., 16.);
+  let v = Vec3::new(1., 2., 3.);
+  let res = Vec3::new(14., 38., 62.);
+  assert_eq!(m.apply_Vec3(&v), res);
+}
+
+#[test]
+fn test_Mat4_apply_Point() {
+  let m = Mat4::raw(1.,  2.,  3.,  4.,
+                     5.,  6.,  7.,  8.,
+                     9.,  10., 11., 12.,
+                     13., 14., 15., 16.);
+  let v = Point::new(1., 2., 3.);
+  let res = Point::new(18., 46., 74.);
+  assert_eq!(m.apply_Point(&v), res);
+}
+
 #[test]
 fn test_Mat4_diag() {
   let iden = Mat4 {data : ~[2f32, 0f32, 0f32, 0f32,
@@ -185,15 +319,6 @@ fn test_Mat4_inverse() {
   assert_eq!(failInv.inverse(), None);
 }
 
-impl Add<Mat4, Mat4> for Mat4 {
-  fn add(&self, other : &Mat4) -> Mat4 {
-    let mut sum_data = ~[0.0f32, ..16];
-    for i in range(0u, 16u) {
-      sum_data[i] = other.data[i] + self.data[i];
-    }
-    Mat4 { data : sum_data }
-  }
-}
 #[test]
 fn test_Mat4_add() {
   let m1 = Mat4::raw(1.,  2.,  3.,  4.,
@@ -207,20 +332,6 @@ fn test_Mat4_add() {
   assert_eq!(m1 + m1, res);
 }
 
-impl Mul<Mat4, Mat4> for Mat4 {
-  fn mul(&self, other : &Mat4) -> Mat4 {
-    let mut sum_data = ~[0.0f32, ..16];
-    for i in range(0u, 4u) {
-      for j in range(0u, 4u) {
-        sum_data[i*4+j] = self.data[i*4 + 0] * other.data[0 + j] +
-                          self.data[i*4 + 1] * other.data[4 + j] +
-                          self.data[i*4 + 2] * other.data[8 + j] +
-                          self.data[i*4 + 3] * other.data[12 + j];
-      }
-    }
-    Mat4 { data : sum_data }
-  }
-}
 #[test]
 fn test_Mat4_mul() {
   let m1 = Mat4::raw(1.,  2.,  3.,  4.,
@@ -232,73 +343,4 @@ fn test_Mat4_mul() {
                       314., 356., 398., 440.,
                       426., 484., 542., 600.);
   assert_eq!(m1 * m1, res);
-}
-
-#[test]
-fn test_Mat4_apply_Vec3() {
-  let m = Mat4::raw(1.,  2.,  3.,  4.,
-                     5.,  6.,  7.,  8.,
-                     9.,  10., 11., 12.,
-                     13., 14., 15., 16.);
-  let v = Vec3::new(1., 2., 3.);
-  let res = Vec3::new(14., 38., 62.);
-  assert_eq!(m.apply_Vec3(&v), res);
-}
-
-#[test]
-fn test_Mat4_apply_Point() {
-  let m = Mat4::raw(1.,  2.,  3.,  4.,
-                     5.,  6.,  7.,  8.,
-                     9.,  10., 11., 12.,
-                     13., 14., 15., 16.);
-  let v = Point::new(1., 2., 3.);
-  let res = Point::new(18., 46., 74.);
-  assert_eq!(m.apply_Point(&v), res);
-}
-
-
-#[deriving(Eq, Clone, Show)]
-pub struct Transform {
-  mat : Mat4
-}
-
-impl Transform {
-  pub fn translate(d : Vec3) -> Transform{
-    Transform{ mat : Mat4::raw(1., 0., 0., d.x,
-                               0., 1., 0., d.y,
-                               0., 0., 1., d.z,
-                               0., 0., 0., 1.)
-    }
-  }
-
-  pub fn apply_Mat4(&self, matrix : Mat4) -> Mat4 {
-    self.mat * matrix
-  }
-
-  pub fn apply_Vec3(&self, vec : &Vec3) -> Vec3 {
-    self.mat.apply_Vec3(vec)
-  }
-
-  pub fn apply_Point(&self, point : &Point) -> Point {
-    self.mat.apply_Point(point)
-  }
-
-  pub fn apply_Normal(&self, point : &Normal) -> Normal{
-    self.mat.apply_Normal(point)
-  }
-
-  pub fn apply_Ray(&self, ray : &Ray) -> Ray {
-    self.mat.apply_Ray(ray)
-  }
-
-  pub fn apply_inv_Ray(&self, ray : &Ray) -> Ray {
-    self.mat.inverse().unwrap().apply_Ray(ray)
-  }
-
-  pub fn scale(amt : f32) -> Transform {
-    Transform {mat : Mat4::diag(amt)}
-  }
-  pub fn identity() -> Transform {
-    Transform {mat : Mat4::identity()}
-  }
 }

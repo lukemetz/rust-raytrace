@@ -24,6 +24,12 @@ impl Sub<Point, Point> for Point {
   }
 }
 
+impl Mul<Point, Point> for Point {
+  fn mul(&self, other : &Point) -> Point {
+    Point::new(self.x * other.x, self.y * other.y, self.z * other.z)
+  }
+}
+
 #[deriving(Eq, Clone, Show)]
 pub struct Vec3 {
   pub x : f32,
@@ -59,15 +65,16 @@ pub trait Scale {
   fn scale(&self, other : f32) -> Self;
 }
 
-//TODO why u know work strange trait...
 impl Scale for Vec3 {
-  fn scale(&self, other : f32) -> Vec3{
+  fn scale(&self, other : f32) -> Vec3 {
     Vec3::new(self.x * other, self.y * other, self.z * other)
   }
 }
-#[test]
-fn test_vec3_scale() {
-  assert_eq!(Vec3::new(0.,1.,2.).scale(2.), Vec3::new(0., 2., 4.));
+
+impl Scale for Point {
+  fn scale(&self, other : f32) -> Point {
+    Point::new(self.x * other, self.y * other, self.z * other)
+  }
 }
 
 #[deriving(Eq, Clone, Show)]

@@ -1,5 +1,4 @@
 use geometry::Point;
-pub mod geometry;
 
 #[deriving(Eq, Clone, Show)]
 pub struct Sample {

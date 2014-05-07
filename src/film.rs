@@ -1,12 +1,7 @@
+use std;
 use sample::Sample;
 use spectrum::Spectrum;
 use std::io::{File, Open, Write};
-use std::io::fs;
-
-pub mod spectrum;
-pub mod sample;
-pub mod geometry;
-pub mod transform;
 
 pub struct Film {
   pub size : (uint, uint),
@@ -31,7 +26,7 @@ impl Film {
 
   pub fn add_sample(&mut self, sample : &Sample, spectrum: Spectrum) {
     match self.size {
-      (x, y) => {
+      (x, _) => {
         let nearest_x = sample.point.x as uint;
         let nearest_y = sample.point.y as uint;
         let index = nearest_y * x + nearest_x;

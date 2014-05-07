@@ -1,9 +1,6 @@
 use geometry::{Point, Normal, Vec3, Ray, Scale};
-use transform::{Transform, Mat4};
+use transform::{Transform};
 use std::fmt;
-
-pub mod transform;
-pub mod geometry;
 
 //use differential_geometry::DifferentialGeometry;
 #[deriving(Show, Eq)]
@@ -18,7 +15,7 @@ pub trait Intersect {
 }
 
 #[deriving(Show, Eq)]
-struct DifferentialGeometry {
+pub struct DifferentialGeometry {
   pub p : Point,
   pub n : Normal,
   //u : f32, v : f32,

@@ -1,7 +1,4 @@
 use sample::Sample;
-pub mod sample;
-pub mod transform;
-pub mod geometry;
 
 pub trait Sampler<T : Iterator<~Vec<Sample>>> {
   fn mut_iter(&self) -> T;

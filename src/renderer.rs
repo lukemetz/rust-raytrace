@@ -2,10 +2,6 @@ use scene::Scene;
 use sample::Sample;
 use geometry::Ray;
 
-pub mod scene;
-pub mod sample;
-pub mod geometry;
-
 pub trait Renderer {
   fn render(scene : &Scene);
   fn li(scene : &Scene, ray : &Ray, sample : &Sample) -> Spectrum;
