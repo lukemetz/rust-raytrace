@@ -7,6 +7,7 @@ use rt::shape::{Sphere, Intersect};
 use rt::film::Film;
 use rt::spectrum::Spectrum;
 use rt::geometry::Vec3;
+use rt::filter;
 
 fn make_scene() -> Scene {
   let t1 = Transform::translate(Vec3::new(0., 2., -2.));
@@ -28,7 +29,8 @@ fn make_scene() -> Scene {
 fn main() {
   let sampler = RandomSampler::new(10, (0, 100), (0, 100));
   let scene = make_scene();
-  let mut film = ~Film::new((100, 100));
+  let triangle_filter = ~filter::Triangle::new(1., 1.);
+  let mut film = ~Film::new((100, 100), triangle_filter);
   let cam_trans = Transform::translate(Vec3::new(0., 0., -10.));
   let camera = OrthographicCamera::new(cam_trans, (-10., 10., -10., 10.), film);
 
@@ -42,6 +44,7 @@ fn main() {
       film.add_sample(sample, spectrum);
     }
   }
+  println!("Writing file");
   let path = Path::new("intersection.ppm");
   film.write(&path);
 }

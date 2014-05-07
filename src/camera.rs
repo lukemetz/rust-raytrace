@@ -2,9 +2,12 @@ use geometry::{Vec3, Ray};
 use transform::Transform;
 use sample::Sample;
 use film::Film;
+use filter::Filter;
 
 #[test]
 use geometry::{Point};
+#[test]
+use filter;
 
 pub trait Camera {
   fn generate_ray(&self, sample : &Sample) -> Ray;
@@ -18,7 +21,7 @@ pub struct OrthographicCamera {
 }
 
 impl OrthographicCamera {
-  pub fn new<'a>(camera_to_world: Transform, window : (f32, f32, f32, f32), film: &Film) -> OrthographicCamera {
+  pub fn new<T : Filter>(camera_to_world: Transform, window : (f32, f32, f32, f32), film: &Film<T>) -> OrthographicCamera {
     let clipping = (0., 1000.);
     let (znear, zfar) = clipping;
     let camera_to_screen = Transform::scale(1., 1., 1. / (zfar - znear))
@@ -49,7 +52,8 @@ impl Camera for OrthographicCamera {
 #[test]
 fn test_OrthographicCamera_generate_ray() {
   let trans = Transform::translate(Vec3::new(0., 0., -2.));
-  let film = Film::new((10, 10));
+  let filter = ~filter::Box::new(0.5, 0.5);
+  let film = Film::new((10, 10), filter);
   let camera = ~OrthographicCamera::new(trans, (-10., 10., -10., 10.), &film);
 
   let sample = Sample::new(7.5, 7.5);
