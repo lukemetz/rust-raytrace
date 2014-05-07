@@ -26,6 +26,7 @@ impl Film {
     self.data.get(y * sx + x)
   }
 
+  //TODO add docs
   pub fn add_sample(&mut self, sample : &Sample, spectrum: Spectrum) {
     match self.size {
       (x, _) => {
@@ -35,6 +36,11 @@ impl Film {
         *self.data.get_mut(index) = spectrum.rgb;
       }
     }
+  }
+
+  //TODO add docs
+  pub fn splat(&mut self, sample : &Sample, spectrum: Spectrum) {
+    unimplemented!();
   }
 
   pub fn write(&self, path : &Path) {
