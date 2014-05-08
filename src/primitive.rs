@@ -1,5 +1,7 @@
 use shape::{Shape, DifferentialGeometry};
 use geometry::{Ray};
+use std::rc::Rc;
+
 #[test]
 use shape;
 #[test]
@@ -15,6 +17,7 @@ pub trait Intersect {
 
 pub trait Primitive : Intersect{
   fn can_intersect(&self) -> bool;
+  fn get_shape(&self) -> Option<Rc<Box<Shape>>>;
 }
 
 pub struct Intersection<'a> {
@@ -26,7 +29,7 @@ pub struct Intersection<'a> {
 
 
 pub struct Geometric {
-  shape : Box<Shape>
+  shape : Rc<Box<Shape>>
 }
 
 
@@ -34,11 +37,14 @@ impl Primitive for Geometric {
   fn can_intersect(&self) -> bool {
     true
   }
+  fn get_shape(&self) -> Option<Rc<Box<Shape>>> {
+    Some(self.shape.clone())
+  }
 }
 
 impl Geometric {
   pub fn new(shape : Box<Shape>) -> Geometric {
-    Geometric { shape : shape }
+    Geometric { shape : Rc::new(shape) }
   }
 }
 
