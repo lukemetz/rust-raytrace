@@ -8,21 +8,22 @@ use geometry::{Vec3, Point, Normal};
 use transform::Transform;
 
 //use differential_geometry::DifferentialGeometry;
-#[deriving(Show, Eq)]
-pub struct Intersection {
-  pub t_hit : f32,
-  pub diff_geom : DifferentialGeometry,
-  pub ray_epsilon : f32
-}
-
 pub trait Intersect {
   fn intersect(&self, ray : &Ray) -> Option<Intersection>;
 }
 
 
-pub trait Primitive : Intersect {
+pub trait Primitive : Intersect{
   fn can_intersect(&self) -> bool;
 }
+
+pub struct Intersection<'a> {
+  pub t_hit : f32,
+  pub diff_geom : DifferentialGeometry,
+  pub ray_epsilon : f32,
+  pub prim : &'a Primitive
+}
+
 
 pub struct Geometric {
   shape : Box<Shape>
@@ -50,7 +51,8 @@ impl Intersect for Geometric {
           Intersection {
             t_hit : t_hit,
             ray_epsilon : ray_epsilon,
-            diff_geom : diff_geom
+            diff_geom : diff_geom,
+            prim : self
         })
       }
     }
