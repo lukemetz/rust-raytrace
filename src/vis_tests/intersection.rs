@@ -2,28 +2,33 @@ extern crate rt = "raytrace_core";
 use rt::sampler::{Sampler, RandomSampler};
 use rt::camera::{Camera, OrthographicCamera};
 use rt::transform::{Transform};
-use rt::scene::Scene;
-use rt::shape::{Sphere, Intersect};
+use rt::shape::{Sphere};
+use rt::primitive;
+use rt::primitive::{Intersect};
 use rt::film::Film;
 use rt::spectrum::Spectrum;
 use rt::geometry::Vec3;
 use rt::filter;
+use rt::aggregator::Aggregator;
 
-fn make_scene() -> Scene {
+fn make_scene() -> Aggregator {
   let t1 = Transform::translate(Vec3::new(0., 2., -2.));
   let s1 = ~Sphere::new(2., t1);
+  let p1 = box primitive::Geometric::new(s1);
 
   let t2 = Transform::translate(Vec3::new(0., -2., 2.));
   let s2 = ~Sphere::new(6., t2);
+  let p2 = box primitive::Geometric::new(s2);
 
   let t3 = Transform::translate(Vec3::new(0., 2., -2.));
   let s3 = ~Sphere::new(3., t3);
+  let p3 = box primitive::Geometric::new(s3);
 
-  let mut scene = Scene::new();
-  scene.push(s1);
-  scene.push(s2);
-  scene.push(s3);
-  scene
+  let mut agg = Aggregator::new();
+  agg.push(p1);
+  agg.push(p2);
+  agg.push(p3);
+  agg
 }
 
 fn main() {

@@ -4,18 +4,6 @@ use std::fmt;
 #[test]
 use geometry::{Vec3};
 
-//use differential_geometry::DifferentialGeometry;
-#[deriving(Show, Eq)]
-pub struct Intersection {
-  pub t_hit : f32,
-  pub diff_geom : DifferentialGeometry,
-  pub rayEpsilon : f32
-}
-
-pub trait Intersect {
-  fn intersect(&self, ray : &Ray) -> Option<Intersection>;
-}
-
 #[deriving(Show, Eq)]
 pub struct DifferentialGeometry {
   pub p : Point,
@@ -26,7 +14,8 @@ pub struct DifferentialGeometry {
   //shape : ~Shape
 }
 
-pub trait Shape : Intersect {
+pub trait Shape {
+  fn intersect(&self, ray : &Ray) -> Option<(f32, f32, DifferentialGeometry)>;
 }
 
 impl fmt::Show for ~Shape {
@@ -36,7 +25,7 @@ impl fmt::Show for ~Shape {
   }
 }
 
-//#[deriving( Show)]
+#[deriving(Show)]
 pub struct Sphere {
   trans : Transform,
   radius : f32
@@ -46,8 +35,6 @@ impl Sphere {
     Sphere{trans:t, radius:radius}
   }
 }
-
-impl Shape for Sphere {}
 
 
 fn quadratic(a : f32, b : f32, c : f32) -> Option<(f32, f32)> {
@@ -61,8 +48,8 @@ fn quadratic(a : f32, b : f32, c : f32) -> Option<(f32, f32)> {
   }
 }
 
-impl Intersect for Sphere {
-  fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+impl Shape for Sphere {
+  fn intersect(&self, ray: &Ray) -> Option<(f32, f32, DifferentialGeometry)> {
     let tray = self.trans.apply_inv_Ray(ray);
 
     //Quadratic constants
@@ -91,11 +78,8 @@ impl Intersect for Sphere {
             //dpdu : Vec3::new(0f32,0f32,0f32), dpdv : Vec3::new(0f32,0f32,0f32),
             //dndu : Normal::new(0f32,0f32,0f32), dndv : Normal::new(0f32,0f32,0f32)
           };
-          let intersect = Intersection{
-            diff_geom : diff_geom,
-            t_hit : t1,
-            rayEpsilon : 1.0
-          };
+          let intersect = (t1, 1e-3f32, diff_geom);
+
           Some(intersect)
         } else {
           None
@@ -111,7 +95,7 @@ fn test_Sphere_intersect() {
   let sphere = Sphere::new(4., trans);
   let ray = Ray::new(Point::new(0.,10.,0.), Vec3::new(0., -1., 0.));
   let result = sphere.intersect(&ray).unwrap();
-  assert_eq!(result.diff_geom.p, Point::new(0., 6., 0.));
-  assert_eq!(result.diff_geom.n, Normal::new(0., 1., 0.));
-  assert_eq!(result.t_hit, 4.);
+  assert_eq!(result.val2().p, Point::new(0., 6., 0.));
+  assert_eq!(result.val2().n, Normal::new(0., 1., 0.));
+  assert_eq!(result.val0(), 4.);
 }
