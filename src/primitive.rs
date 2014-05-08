@@ -25,7 +25,7 @@ pub trait Primitive : Intersect {
 }
 
 pub struct Geometric {
-  shape : ~Shape
+  shape : Box<Shape>
 }
 
 
@@ -36,7 +36,7 @@ impl Primitive for Geometric {
 }
 
 impl Geometric {
-  pub fn new(shape : ~Shape) -> Geometric {
+  pub fn new(shape : Box<Shape>) -> Geometric {
     Geometric { shape : shape }
   }
 }

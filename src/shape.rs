@@ -18,7 +18,7 @@ pub trait Shape {
   fn intersect(&self, ray : &Ray) -> Option<(f32, f32, DifferentialGeometry)>;
 }
 
-impl fmt::Show for ~Shape {
+impl fmt::Show for Box<Shape> {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     //TODO fix me so polymorphism works correctly
     write!(f.buf, "Undefined Shape print")

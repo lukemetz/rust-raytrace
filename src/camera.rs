@@ -52,9 +52,9 @@ impl Camera for OrthographicCamera {
 #[test]
 fn test_OrthographicCamera_generate_ray() {
   let trans = Transform::translate(Vec3::new(0., 0., -2.));
-  let filter = ~filter::Box::new(0.5, 0.5);
+  let filter = box filter::Box::new(0.5, 0.5);
   let film = Film::new((10, 10), filter);
-  let camera = ~OrthographicCamera::new(trans, (-10., 10., -10., 10.), &film);
+  let camera = box OrthographicCamera::new(trans, (-10., 10., -10., 10.), &film);
 
   let sample = Sample::new(7.5, 7.5);
   let ray = camera.generate_ray(&sample);

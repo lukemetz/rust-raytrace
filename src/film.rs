@@ -23,11 +23,11 @@ impl Default for Pixel {
 pub struct Film<T> {
   pub size : (uint, uint),
   pub data : Vec<Pixel>,
-  pub filter : ~T
+  pub filter : Box<T>
 }
 
 impl<T : Filter> Film<T> {
-  pub fn new (size : (uint, uint), filter : ~T) -> Film<T> {
+  pub fn new (size : (uint, uint), filter : Box<T>) -> Film<T> {
     match size {
       (x, y) => {
         let data = Vec::from_elem(x * y, Default::default());
@@ -80,7 +80,7 @@ impl<T : Filter> Film<T> {
   pub fn write(&self, path : &Path) {
 
     let (xs, ys) = self.size;
-    let header : ~str = format!("P3\n{:u} {:u}\n{:d}\n", xs, ys, 255);
+    let header = format!("P3\n{:u} {:u}\n{:d}\n", xs, ys, 255);
     let mut file = File::open_mode(path, Open, Write).unwrap();
 
     if file.write_str(header).is_err() {
@@ -107,7 +107,7 @@ impl<T : Filter> Film<T> {
 #[test]
 fn test_Film_add_sample() {
   let filter = filter::Triangle::new(1., 1.);
-  let mut film = ~Film::new((5, 5), ~filter);
+  let mut film = box Film::new((5, 5), box filter);
   let sample = Sample::new(2., 2.);
   let spectrum = Spectrum::new((1., 1., 0.));
   film.add_sample(&sample, spectrum);
@@ -128,7 +128,7 @@ fn test_Film_add_sample() {
 #[test]
 fn test_Film_write() {
   let filter = filter::Triangle::new(1., 1.);
-  let mut film = ~Film::new((100, 100), ~filter);
+  let mut film = box Film::new((100, 100), box filter);
   for x in range(0, 100) {
     for y in range(0, 100) {
       let sample = Sample::new((x as f32 + 0.5) / 100., (y as f32 + 0.5) / 100.);

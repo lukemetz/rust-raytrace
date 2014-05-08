@@ -1,7 +1,7 @@
 extern crate rand;
 use sample::Sample;
 
-pub trait Sampler<T : Iterator<~Vec<Sample>>> {
+pub trait Sampler<T : Iterator<Box<Vec<Sample>>>> {
   fn mut_iter(&self) -> T;
 }
 
@@ -60,12 +60,12 @@ impl RandomSamplerIter {
 }
 
 //TODO make return reference as to not reuse memory
-impl Iterator<~Vec<Sample>> for RandomSamplerIter {
-  fn next(&mut self) -> Option<~Vec<Sample>> {
+impl Iterator<Box<Vec<Sample>>> for RandomSamplerIter {
+  fn next(&mut self) -> Option<Box<Vec<Sample>>> {
     match self.next_sample_loc() {
       None => None,
       Some((on_x, on_y)) => {
-        let sample_vec = ~Vec::from_fn(self.max_samples, |_| -> Sample {
+        let sample_vec = box Vec::from_fn(self.max_samples, |_| -> Sample {
             let delta_x : f32 = rand::random();
             let delta_y : f32 = rand::random();
             Sample::new((on_x as f32) + delta_x, (on_y as f32) + delta_y)
