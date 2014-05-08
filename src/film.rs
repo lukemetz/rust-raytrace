@@ -6,8 +6,6 @@ use std;
 use std::default::Default;
 
 #[test]
-use std;
-#[test]
 use filter;
 
 #[deriving(Clone, Show, Eq)]
@@ -65,7 +63,7 @@ impl<T : Filter> Film<T> {
       for y in range(y0, y1+1) {
         let weight = self.filter.evaluate((x as f32)-discrete_x, (y as f32)-discrete_y);
         let index = y * sx + x;
-        let p = (self.data.get_mut(index));
+        let p = self.data.get_mut(index);
         (*p).xyz = ((*p).xyz.val0() + weight*spectrum.xyz.val0(),
                     (*p).xyz.val1() + weight*spectrum.xyz.val1(),
                     (*p).xyz.val2() + weight*spectrum.xyz.val2());
