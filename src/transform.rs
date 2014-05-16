@@ -178,7 +178,7 @@ impl std::fmt::Show for Mat4 {
       to_str(d[j*4+3]) + "\n";
     }
     string = string + "}";
-    write!(f.buf, "{}", string)
+    f.write(string.into_bytes())
   }
 }
 

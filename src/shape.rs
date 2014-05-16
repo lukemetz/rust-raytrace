@@ -21,7 +21,7 @@ pub trait Shape {
 impl fmt::Show for Box<Shape> {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     //TODO fix me so polymorphism works correctly
-    write!(f.buf, "Undefined Shape print")
+    f.write("Undefined Shape print".to_owned().into_bytes())
   }
 }
 
