@@ -13,3 +13,4 @@ pub mod aggregator;
 pub mod filter;
 pub mod primitive;
 pub mod bsdf;
+pub mod material;

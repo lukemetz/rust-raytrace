@@ -2,6 +2,7 @@ use shape::Shape;
 use geometry::Ray;
 use primitive::{Primitive, Intersect, Intersection};
 use std::rc::Rc;
+use material::Material;
 
 #[test]
 use geometry::{Vec3, Point};
@@ -9,6 +10,10 @@ use geometry::{Vec3, Point};
 use transform::Transform;
 #[test]
 use primitive;
+#[test]
+use material;
+#[test]
+use spectrum::Spectrum;
 
 pub struct Aggregator {
   prims: Vec<Box<Primitive>>
@@ -60,6 +65,10 @@ impl Primitive for Aggregator {
   fn get_shape(&self) -> Option<Rc<Box<Shape>>> {
     None
   }
+
+  fn get_material(&self) -> Option<Rc<Box<Material>>> {
+    None
+  }
 }
 
 
@@ -69,15 +78,18 @@ fn test_Scene() {
 
   let t1 = Transform::translate(Vec3::new(0., 2., 0.));
   let s1 = box Sphere::new(2., t1);
-  let p1 = box primitive::Geometric::new(s1);
+  let m1 = box material::Lambertian::new(Spectrum::new((0.1, 0.2, 0.4)));
+  let p1 = box primitive::Geometric::new(s1, m1);
 
   let t2 = Transform::translate(Vec3::new(0., -2., 0.));
   let s2 = box Sphere::new(2., t2);
-  let p2 = box primitive::Geometric::new(s2);
+  let m2 = box material::Lambertian::new(Spectrum::new((0.1, 0.2, 0.4)));
+  let p2 = box primitive::Geometric::new(s2, m2);
 
   let t3 = Transform::translate(Vec3::new(0., 2., 0.));
   let s3 = box Sphere::new(3., t3);
-  let p3 = box primitive::Geometric::new(s3);
+  let m3 = box material::Lambertian::new(Spectrum::new((0.1, 0.2, 0.4)));
+  let p3 = box primitive::Geometric::new(s3, m3);
 
   let mut agg = Aggregator::new();
   agg.push(p1);
