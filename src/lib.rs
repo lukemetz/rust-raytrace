@@ -12,3 +12,4 @@ pub mod spectrum;
 pub mod aggregator;
 pub mod filter;
 pub mod primitive;
+pub mod bsdf;
