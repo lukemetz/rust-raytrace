@@ -3,25 +3,28 @@ use transform::Transform;
 use sample::Sample;
 use film::Film;
 use filter::Filter;
+use std::rc::Rc;
 
 #[test]
 use geometry::{Point};
 #[test]
 use filter;
 
-pub trait Camera {
+pub trait Camera<T> {
   fn generate_ray(&self, sample : &Sample) -> Ray;
+  fn get_film<'a> (&'a mut self) -> Rc<Box<Film<T>>>;
 }
 
-#[deriving(Eq, Clone, Show)]
-pub struct OrthographicCamera {
+#[deriving(Eq, Clone)]
+pub struct OrthographicCamera<T> {
   raster_to_screen : Transform,
   screen_to_camera : Transform,
-  camera_to_world : Transform
+  camera_to_world : Transform,
+  pub film : Rc<Box<Film<T>>>
 }
 
-impl OrthographicCamera {
-  pub fn new<T : Filter>(camera_to_world: Transform, window : (f32, f32, f32, f32), film: &Film<T>) -> OrthographicCamera {
+impl<T : Filter> OrthographicCamera<T> {
+  pub fn new(camera_to_world: Transform, window : (f32, f32, f32, f32), film: Film<T>) -> OrthographicCamera<T> {
     let clipping = (0., 1000.);
     let (znear, zfar) = clipping;
     let camera_to_screen = Transform::scale(1., 1., 1. / (zfar - znear))
@@ -34,17 +37,22 @@ impl OrthographicCamera {
     OrthographicCamera {
       raster_to_screen : screen_to_raster.inverse(),
       screen_to_camera : camera_to_screen.inverse(),
-      camera_to_world : camera_to_world
+      camera_to_world : camera_to_world,
+      film : Rc::new(box film)
     }
   }
 }
 
-impl Camera for OrthographicCamera {
+impl<T : Filter> Camera<T> for OrthographicCamera<T> {
   fn generate_ray(&self, sample : &Sample) -> Ray {
     let direction = self.camera_to_world.apply_Vec3(&Vec3::new(0., 0., 1.));
     let raster_to_world = self.camera_to_world * self.screen_to_camera * self.raster_to_screen;
     let origin = raster_to_world.apply_Point(&sample.point);
     Ray::new(origin, direction)
+  }
+
+  fn get_film<'a>(&'a mut self) -> Rc<Box<Film<T>>> {
+    self.film.clone()
   }
 }
 
@@ -54,7 +62,7 @@ fn test_OrthographicCamera_generate_ray() {
   let trans = Transform::translate(Vec3::new(0., 0., -2.));
   let filter = box filter::Box::new(0.5, 0.5);
   let film = Film::new((10, 10), filter);
-  let camera = box OrthographicCamera::new(trans, (-10., 10., -10., 10.), &film);
+  let camera = box OrthographicCamera::new(trans, (-10., 10., -10., 10.), film);
 
   let sample = Sample::new(7.5, 7.5);
   let ray = camera.generate_ray(&sample);

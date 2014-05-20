@@ -1,4 +1,4 @@
-pub trait Filter {
+pub trait Filter : Clone{
   fn evaluate(&self, x : f32, y : f32) -> f32;
   fn get_extent(&self) -> (f32, f32);
 }

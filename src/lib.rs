@@ -15,3 +15,5 @@ pub mod primitive;
 pub mod bsdf;
 pub mod material;
 pub mod scene;
+pub mod renderer;
+pub mod integrator;

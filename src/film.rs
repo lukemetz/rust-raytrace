@@ -20,6 +20,7 @@ impl Default for Pixel {
   }
 }
 
+#[deriving(Clone, Show, Eq)]
 pub struct Film<T> {
   pub size : (uint, uint),
   pub data : Vec<Pixel>,
