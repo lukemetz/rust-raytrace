@@ -1,6 +1,0 @@
-[submodule "cgmath-rs"]
-	path = cgmath-rs
-	url = git@github.com:bjz/cgmath-rs.git
-[submodule "external/rust-empty"]
-	path = external/rust-empty
-	url = git@github.com:bvssvni/rust-empty.git
