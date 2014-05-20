@@ -9,7 +9,6 @@ use primitive::Intersect;
 
 use spectrum::Spectrum;
 use film::Film;
-use std::rc::Rc;
 use filter::Filter;
 
 pub trait Renderer<T> {

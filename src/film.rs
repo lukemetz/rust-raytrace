@@ -73,11 +73,6 @@ impl<T : Filter> Film<T> {
     }
   }
 
-  //TODO add docs
-  pub fn splat(&mut self, sample : &Sample, spectrum: Spectrum) {
-    unimplemented!();
-  }
-
   pub fn write(&self, path : &Path) {
 
     let (xs, ys) = self.size;
