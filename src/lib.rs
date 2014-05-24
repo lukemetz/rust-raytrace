@@ -17,3 +17,5 @@ pub mod material;
 pub mod scene;
 pub mod renderer;
 pub mod integrator;
+pub mod light;
+pub mod montecarlo;

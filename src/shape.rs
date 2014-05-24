@@ -70,9 +70,9 @@ impl Shape for Sphere {
         }
         if thit > 0. {
           let point = tray.o + Point::from_vec(tray.d.scale(thit));
-          let normal = Normal::from_point(tray.o - point);
+          let normal = Normal::from_vec(tray.o - point);
           let diff_geom = DifferentialGeometry{
-            p: self.trans.apply_Point(&point),
+            p: self.trans.apply_point(&point),
             n: self.trans.apply_Normal(&normal)
             //u : 0f32, v : 0f32,
             //dpdu : Vec3::new(0f32,0f32,0f32), dpdv : Vec3::new(0f32,0f32,0f32),

@@ -104,7 +104,7 @@ impl<T : Filter> Film<T> {
 fn test_Film_add_sample() {
   let filter = filter::Triangle::new(1., 1.);
   let mut film = box Film::new((5, 5), box filter);
-  let sample = Sample::new(2., 2.);
+  let sample = Sample::new(2., 2., vec!());
   let spectrum = Spectrum::new((1., 1., 0.));
   film.add_sample(&sample, spectrum);
 
@@ -113,7 +113,7 @@ fn test_Film_add_sample() {
   let pixel = Pixel { xyz : (0., 0., 0.), weight_sum : 0. };
   assert_eq!(*film.get(3, 2), pixel);
 
-  let sample = Sample::new(2.5, 2.5);
+  let sample = Sample::new(2.5, 2.5, vec!());
   let spectrum = Spectrum::new((1., 1., 1.));
   film.add_sample(&sample, spectrum);
 
@@ -127,7 +127,7 @@ fn test_Film_write() {
   let mut film = box Film::new((100, 100), box filter);
   for x in range(0, 100) {
     for y in range(0, 100) {
-      let sample = Sample::new((x as f32 + 0.5) / 100., (y as f32 + 0.5) / 100.);
+      let sample = Sample::new((x as f32 + 0.5) / 100., (y as f32 + 0.5) / 100., vec!());
       let spectrum = Spectrum::new((x as f32 / 100., y as f32 / 100., 0.5));
       film.add_sample(&sample, spectrum);
     }

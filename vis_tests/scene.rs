@@ -1,4 +1,4 @@
-extern crate rt = "raytrace_core";
+//extern crate rt = "raytrace_core";
 use rt::transform::{Transform};
 use rt::shape::{Sphere};
 use rt::primitive;

@@ -1,10 +1,10 @@
 all: lib test
 
 lib: src/lib.rs Makefile src/*.rs
-	rustc src/lib.rs
+	rustc src/lib.rs -g
 
 test: src/lib.rs Makefile src/*.rs
-	rustc src/lib.rs --test -o bin/test
+	rustc src/lib.rs --test -o bin/test -g
 
 vis_test: intersection bsdf
 
@@ -14,6 +14,8 @@ intersection: lib vis_tests/intersection.rs
 bsdf: lib vis_tests/bsdf.rs
 	rustc -L . vis_tests/bsdf.rs -o bin/bsdf
 
+direct: lib vis_tests/direct.rs
+	rustc -L . vis_tests/direct.rs -o bin/direct -g
 .PHONY: clean
 
 clean:

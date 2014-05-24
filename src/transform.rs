@@ -31,7 +31,7 @@ impl Mat4 {
                    m, n, o, p]}
   }
 
-  fn apply_Point(&self, other : &Point) -> Point{
+  fn apply_point(&self, other : &Point) -> Point{
     let x = self.data[0] * other.x + self.data[1] * other.y + self.data[2] * other.z + self.data[3];
     let y = self.data[4] * other.x + self.data[5] * other.y + self.data[6] * other.z + self.data[7];
     let z = self.data[8] * other.x + self.data[9] * other.y + self.data[10] * other.z + self.data[11];
@@ -53,8 +53,10 @@ impl Mat4 {
   }
 
   fn apply_Ray(&self, other : &Ray) -> Ray{
-    Ray{o:self.apply_Point(&other.o),
-        d:self.apply_Vec3(&other.d)}
+    Ray{o:self.apply_point(&other.o),
+        d:self.apply_Vec3(&other.d),
+        min_t : other.min_t,
+        max_t : other.max_t}
   }
 
   //TODO make this more functional
@@ -205,8 +207,8 @@ impl Transform {
     self.mat.apply_Vec3(vec)
   }
 
-  pub fn apply_Point(&self, point : &Point) -> Point {
-    self.mat.apply_Point(point)
+  pub fn apply_point(&self, point : &Point) -> Point {
+    self.mat.apply_point(point)
   }
 
   pub fn apply_Normal(&self, point : &Normal) -> Normal{

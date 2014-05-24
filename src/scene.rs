@@ -1,13 +1,16 @@
 use primitive::{Primitive, Intersect, Intersection};
 use geometry::{Ray};
+use light::Light;
 
 pub struct Scene {
-    aggregate : Box<Primitive>
+    pub aggregate : Box<Primitive>,
+    pub lights : Vec<Box<Light>>
 }
 
 impl Scene {
   pub fn new(aggregate : Box<Primitive>) -> Scene {
-    Scene{ aggregate : aggregate }
+    Scene{ aggregate : aggregate,
+           lights : vec!() }
   }
 }
 
