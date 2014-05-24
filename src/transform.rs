@@ -265,14 +265,14 @@ fn test_Mat4_apply_Vec3() {
 }
 
 #[test]
-fn test_Mat4_apply_Point() {
+fn test_Mat4_apply_point() {
   let m = Mat4::raw(1.,  2.,  3.,  4.,
                      5.,  6.,  7.,  8.,
                      9.,  10., 11., 12.,
                      13., 14., 15., 16.);
   let v = Point::new(1., 2., 3.);
   let res = Point::new(18., 46., 74.);
-  assert_eq!(m.apply_Point(&v), res);
+  assert_eq!(m.apply_point(&v), res);
 }
 
 #[test]
