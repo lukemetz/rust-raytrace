@@ -81,7 +81,7 @@ pub fn uniform_sample_one_light<FilmT> (scene : &Scene, renderer : &Renderer<Fil
   }
 }
 
-
+//TODO make this interface not impossible to test
 pub struct DirectLightIntegrator {
   light_num_offset : uint,
   light_sample_offset: uint,
@@ -123,5 +123,23 @@ impl SurfaceIntegrator for DirectLightIntegrator {
     self.light_num_offset = sampler.add_extra(1);
     self.light_sample_offset = sampler.add_extra(3);
     self.bsdf_sample_offset = sampler.add_extra(3);
+  }
+}
+
+#[cfg(test)]
+mod test {
+  use super::{DirectLightIntegrator, SurfaceIntegrator};
+  use sampler::{RandomSampler, Sampler};
+
+  #[test]
+  fn test_DirectLightIntegrator_request_samples() {
+    let mut integrator = DirectLightIntegrator::new();
+    let mut sampler = RandomSampler::new(1, (0,1), (0,0));
+    integrator.request_samples(&mut sampler);
+
+    let mut iter = sampler.mut_iter();
+    let next = iter.next().unwrap();
+    let extra_len = next.get(0).extra.len();
+    assert_eq!(extra_len, 7);
   }
 }
