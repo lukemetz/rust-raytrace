@@ -10,6 +10,7 @@ use primitive::Intersect;
 pub trait Light {
   fn sample_l(&self, p : &Point, epsilon : f32, light_sample : &LightSample) -> (Spectrum, Vec3, f32, VisibilityTester);
   fn is_delta_light(&self) -> bool;
+  fn power(&self) -> Spectrum;
 }
 
 pub struct LightSample {
@@ -79,5 +80,9 @@ impl Light for PointLight {
   }
   fn is_delta_light(&self) -> bool {
     true
+  }
+  fn power(&self) -> Spectrum {
+    let pi : f32 = Float::pi();
+    self.intensity.mul_float(pi * 4.)
   }
 }
